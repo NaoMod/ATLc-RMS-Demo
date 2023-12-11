@@ -1,0 +1,32 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version "${javaFXPluginVersion}"
+    id "org.xtext.xtend" version "${xtendPluginVersion}"
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+
+version = '1.0-SNAPSHOT'
+
+javafx {
+    modules = ['javafx.graphics', 'javafx.controls']
+}
+
+application {
+    mainClass = "fr.imt.atlc.example.bolt.transfo.App"
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": application.mainClass
+    }
+}
+
+dependencies {
+    implementation "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendVersion}"
+
+    implementation 'fr.eseo.atlc:fr.eseo.atol.gen.plugin.constraints:1.1'
+
+    implementation project(':fr.imt.atlc.example.bolt')
+}

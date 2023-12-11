@@ -1,0 +1,6 @@
+/bin/
+/xtend-gen/
+/.env
+/resources/Graf.svg
+
+data.xmi

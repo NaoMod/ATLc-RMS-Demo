@@ -1,0 +1,28 @@
+@Ecore(nsURI="factory")
+@GenModel(
+    importerID="org.eclipse.emf.importer.ecore",
+    modelDirectory="fr.imt.atlc.example.bolt/src-gen/main/java",
+    complianceLevel="8.0"
+)
+
+package fr.imt.atlc.example.bolt.factory
+
+class Factory {
+    contains Stage[0..*] stages
+    contains StageCharacteristic[0..*] characteristics
+}
+
+class Stage {
+    int stageId
+    int machineCountMax
+    int machineCount
+//    refers Stage prev opposite next
+//    refers Stage next opposite prev
+    
+    refers StageCharacteristic[0..*] characteristics opposite stages
+}
+
+class StageCharacteristic {
+    int charId
+    refers Stage[0..*] stages opposite characteristics
+}

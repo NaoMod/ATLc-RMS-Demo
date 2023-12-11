@@ -1,0 +1,49 @@
+module Factoryandproduct2Productline;
+
+create OUT : JFX from IN : PRODUCTLINE; 
+
+unique lazy rule Main {
+    from
+        s: PRODUCTLINE!ConfiguredFactory
+    to
+        t: JFX!Group(
+            children <- s.stages->collect(e | thisModule.Stage(e).t)->concat(s.tasks->collect(e | thisModule.Task(e).t)).oclAsType(JFX!Node)
+        )
+}
+
+unique lazy rule Stage {
+    from 
+        s: PRODUCTLINE!ConfiguredStage
+    to
+        t: JFX!Group(
+            children <- Sequence { rect }
+        ),
+        rect: JFX!Rectangle(
+            fill <- '0x80ff80ff',
+            x <- 100.0 * s.stageId + 10.0 *s.stageId,
+            y <- 500.0,
+            width <- 100.0,
+            height <- 100.0 * s.machineCount
+        )
+}
+
+unique lazy rule Task {
+    from
+        s: PRODUCTLINE!Task
+    to
+        t: JFX!Group(
+            children <- Sequence { rect, label }
+        ),
+        rect: JFX!Rectangle(
+            fill <- '0x8080ffff',
+            x <- 100.0 * s.stage.stageId + 10.0 *s.stage.stageId,
+            y <- 10.0 * s.taskId,
+            width <- 100.0,
+            height <- 5.0
+        ),
+        label: JFX!Text(
+            text <- '#' + s.taskId,
+            fill <- '0xffffffff',
+            textOrigin <- #TOP
+        )
+}

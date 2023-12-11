@@ -1,0 +1,29 @@
+@Ecore(nsURI="product")
+@GenModel(
+    importerID="org.eclipse.emf.importer.ecore",
+    modelDirectory="fr.imt.atlc.example.bolt/src-gen/main/java",
+    complianceLevel="8.0"
+)
+
+package fr.imt.atlc.example.bolt.product
+
+class Product {
+    int demand
+    contains Task[0..*] tasks
+    contains TaskCharacteristic[0..*] characteristics
+}
+
+class Task {
+    int taskId
+    String description
+
+    refers Task[0..*] next opposite prev
+    refers Task prev opposite next
+
+    refers TaskCharacteristic[0..*] characteristics opposite tasks
+}
+
+class TaskCharacteristic {
+    int charId
+    refers Task[0..*] tasks opposite characteristics
+}

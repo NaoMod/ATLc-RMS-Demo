@@ -1,0 +1,64 @@
+module Factoryandproduct2Productline;
+
+create OUT : PRODUCTLINE, OUT2 : Constraints from IN : PRODUCTFACTORY; 
+--, IN2 : PRODUCT;
+
+unique lazy rule Main {
+    from
+        p: PRODUCTFACTORY!Product,
+        f: PRODUCTFACTORY!Factory
+    to
+        t: PRODUCTLINE!ConfiguredFactory(
+            targetProduction <- p.demand,
+            tasks <- p.tasks->collect(e | thisModule.Task(e,f).t),
+            stages <- f.stages->collect(e | thisModule.Stage(e).t)
+        )
+}
+
+helper def: TASKperSTAGEmax : Integer = 20;
+
+unique lazy rule Stage {
+    from 
+        s: PRODUCTFACTORY!Stage
+    to
+        t: PRODUCTLINE!ConfiguredStage(
+            stageId <- s.stageId,
+            machineCount <- s.machineCount
+        ),
+        cstr: Constraints!Constraint(value <-
+-- Stage Size Constraints
+            t.machineCount > 0
+        and t.machineCount < s.machineCountMax.toConstant() 
+
+-- Stage Capacity Constraints
+-- normaly this would involve computing how much time a task takes on a given stage, and then optimising towards a production rate
+-- in this implementation we are simply limiting the number of tasks allocated to a stage to an arbitrary limit
+----        and ((t.factory.tasks.stage.var().stageId = t.stageId.toConstant() ).reify()).sum() < TASKperSTAGEmax --> this would verify all tasks, where as the next one, only tasks associated with the stage
+----        and ((t.tasks.stage.var().stageId = t.stageId.toConstant() ).reify()).sum() < TASKperSTAGEmax --> at runtime tries to get i=0 from a list of size 0 --Charles says this is better translated to a choco model
+        and t.tasks.var().size() < TASKperSTAGEmax --> count/size isn't supported afaik: so do it
+        )
+}
+
+
+unique lazy rule Task {
+    from 
+        s: PRODUCTFACTORY!Task,
+        f: PRODUCTFACTORY!Factory
+    to
+        t: PRODUCTLINE!Task(
+            taskId <- s.taskId,
+            prev <- if s.prev.oclIsUndefined() then OclUndefined else thisModule.Task(s.prev, f).t endif 
+        ),
+        cstr: Constraints!Constraint(
+            value <- 
+-- Task Precedence Constraints
+                t.stage.var().stageId >= t.prev.stage.var().stageId
+
+-- Task/Stage Characteristcs Constraint
+            and f.stages->select(st| st.characteristics.charId1->includesAll(s.characteristics.charId))->collect(e|thisModule.Stage(e).t).toConstant()->includes(t.stage.var())
+--            and t.stage.var().elementOf( f.stages->select(st| st.characteristics.charId1->includesAll(s.characteristics.charId))->collect(e|thisModule.Stage(e).t).toConstant() )
+--            and f.stage.filter(st| st.charact eristics->includesAll(s.characteristics))->collect(e|thisModule.stage(e).t)->includes(t.stage.var())
+
+--                and t.stage.var().characteristics.includesAll(t.characteristics) --> involves copying and merging characteristics into target model
+        )
+}

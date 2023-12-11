@@ -1,0 +1,23 @@
+allprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = "${sourceCompatibility}"
+    targetCompatibility = "${targetCompatibility}"
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://repo1.maven.org/maven2/"
+        }
+        maven {
+            url "https://repo.eclipse.org/content/repositories/atl-releases/"
+        }
+        // cassowary repo
+        maven {
+            url 'https://git.kher.nl/api/v4/projects/44/packages/maven'
+        }
+        maven {
+            url "https://git.kher.nl/api/v4/groups/aof/-/packages/maven"
+        }
+    }
+}

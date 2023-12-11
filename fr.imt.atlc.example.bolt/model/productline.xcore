@@ -1,0 +1,30 @@
+@Ecore(nsURI="productline")
+@GenModel(
+    importerID="org.eclipse.emf.importer.ecore",
+    modelDirectory="fr.imt.atlc.example.bolt/src-gen/main/java",
+    complianceLevel="8.0"
+)
+
+package fr.imt.atlc.example.bolt.productline
+
+class ConfiguredFactory{
+    int targetProduction
+    contains ConfiguredStage[0..*] stages opposite factory
+    contains Task[0..*] tasks
+}
+
+class ConfiguredStage {
+    int stageId
+    int machineCount
+
+    refers ConfiguredFactory factory opposite stages
+    refers Task[0..*] tasks opposite stage
+}
+
+class Task {
+    int taskId
+
+    refers Task prev opposite next
+    refers Task[0..*] next opposite prev
+    refers ConfiguredStage stage opposite tasks
+}
